@@ -1,6 +1,6 @@
-@extends('layouts.cabinet_layout')
+@extends('layouts.app')
 
-@section('title', 'Счета')
+@section('title', 'Категории расходов')
 
 @section('content')
 
@@ -9,7 +9,7 @@
             <div class="row">
                 <div class="col-12">
                     <div class="d-flex justify-content-between align-items-center">
-                        <h3 class="mb-0">Личные счета</h3>
+                        <h3 class="mb-0">Категории расходов</h3>
                         <button type="button" class="btn btn-outline-success" data-bs-toggle="modal"
                             data-bs-target="#addAccountModal">Добавить</button>
                     </div>
@@ -18,54 +18,50 @@
         </div>
     </div>
 
-
     <div class="container-fluid py-4">
         <div class="row">
             <div class="col-12">
                 <div class="card">
                     <div class="card-header">
-                        <h3 class="card-title">Список счетов</h3>
+                        <h3 class="card-title">Список категорий</h3>
                     </div>
                     <div class="card-body table-responsive p-0">
                         <table class="table table-hover text-nowrap align-middle">
                             <thead class="thead-light">
-                                <tr>
-                                    <th>ID</th>
-                                    <th>Название</th>
-                                    <th>Примечание</th>
-                                    <th>Баланс</th>
-                                    <th class="text-center">Действие</th>
-                                </tr>
+                            <tr>
+                                <th>ID</th>
+                                <th>Название</th>
+                                <th class="text-center">Действие</th>
+                            </tr>
                             </thead>
                             <tbody>
-                                @foreach($accounts as $account)
-                                    <tr>
-                                        <td>{{ $account['id'] }}</td>
-                                        <td>{{ $account['name'] }}</td>
-                                        <td>{{ $account['note'] }}</td>
-                                        <td>{{ number_format($account['balance'], 2, '.', ' ') }} ₸</td>
-                                        <td class="text-center">
-                                            <div class="d-flex justify-content-center align-items-center gap-2">
-                                                <a href="#" class="text-decoration-none" data-bs-toggle="modal"
-                                                    data-bs-target="#editAccountModal" data-id="{{ $account['id'] }}"
-                                                    data-name="{{ $account['name'] }}" data-note="{{ $account['note'] }}">
-                                                    <i class="bi bi-pencil text-primary fs-5"></i>
-                                                </a>
+                            @foreach($categories as $category)
+                                <tr>
+                                    <td>{{ $category->id }}</td>
+                                    <td>{{ $category->name }}</td>
+                                    <td class="text-center">
+                                        <div class="d-flex justify-content-center align-items-center gap-2">
+                                            <a href="#" class="text-decoration-none" data-bs-toggle="modal"
+                                               data-bs-target="#editCategoryModal"
+                                               data-id="{{ $category->id }}"
+                                               data-name="{{ $category->name }}">
+                                                <i class="bi bi-pencil text-primary fs-5"></i>
+                                            </a>
 
-                                                <a href="#" class="text-decoration-none" data-bs-toggle="modal"
-                                                    data-bs-target="#deleteAccountModal" data-id="{{ $account['id'] }}">
-                                                    <i class="bi bi-trash text-danger fs-5"></i>
-                                                </a>
-
-                                            </div>
-
-                                    </tr>
-                                @endforeach
-                                @if($accounts->isEmpty())
-                                    <tr>
-                                        <td colspan="5" class="text-center text-muted">Нет данных</td>
-                                    </tr>
-                                @endif
+                                            <a href="#" class="text-decoration-none" data-bs-toggle="modal"
+                                               data-bs-target="#deleteCategoryModal"
+                                               data-id="{{ $category->id }}">
+                                                <i class="bi bi-trash text-danger fs-5"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            @endforeach
+                            @if($categories->isEmpty())
+                                <tr>
+                                    <td colspan="3" class="text-center text-muted">Нет данных</td>
+                                </tr>
+                            @endif
                             </tbody>
                         </table>
                     </div>
@@ -74,26 +70,22 @@
         </div>
     </div>
 
-    <!-- Модальное окно редактирования -->
-    <div class="modal fade" id="editAccountModal" tabindex="-1" aria-labelledby="editAccountModalLabel" aria-hidden="true">
+    <!-- Modal: Редактирование -->
+    <div class="modal fade" id="editCategoryModal" tabindex="-1" aria-labelledby="editCategoryModalLabel" aria-hidden="true">
         <div class="modal-dialog">
-            <form method="POST" action="{{ route('accounts.update', '__ID__') }}" id="editAccountForm"
-                data-base-action="{{ route('accounts.update', '__ID__') }}">
+            <form method="POST" action="{{ route('categoriesExpense.update', 'id') }}" id="editCategoryForm"
+                  data-base-action="{{ route('categoriesExpense.update', 'id') }}">
                 @csrf
                 @method('PUT')
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title">Редактировать счёт</h5>
+                        <h5 class="modal-title">Редактировать категорию</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
                     <div class="modal-body">
                         <div class="mb-3">
                             <label class="form-label">Название</label>
                             <input type="text" name="name" class="form-control" required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Примечание</label>
-                            <textarea name="note" class="form-control"></textarea>
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -105,14 +97,14 @@
         </div>
     </div>
 
-    <!-- Модальное окно добавления счёта -->
+    <!-- Modal: Добавления -->
     <div class="modal fade" id="addAccountModal" tabindex="-1" aria-labelledby="addAccountModalLabel" aria-hidden="true">
         <div class="modal-dialog">
-            <form method="POST" action="{{ route('accounts.store') }}">
+            <form method="POST" action="{{ route('categoriesExpense.store') }}">
                 @csrf
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="addAccountModalLabel">Добавить счёт</h5>
+                        <h5 class="modal-title" id="addAccountModalLabel">Добавить категорию</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
                     </div>
                     <div class="modal-body">
@@ -120,10 +112,6 @@
                             <label class="form-label">Название</label>
                             <input type="text" name="name" class="form-control" required>
                         </div>
-                        <div class="mb-3">
-                            <label class="form-label">Примечание</label>
-                            <textarea name="note" class="form-control"></textarea>
-                        </div>
                     </div>
                     <div class="modal-footer">
                         <button type="submit" class="btn btn-success">Сохранить</button>
@@ -134,21 +122,20 @@
         </div>
     </div>
 
-    <!-- Модальное окно удаления -->
-    <div class="modal fade" id="deleteAccountModal" tabindex="-1" aria-labelledby="deleteAccountModalLabel"
-        aria-hidden="true">
+    <!-- Modal: Удаление -->
+    <div class="modal fade" id="deleteCategoryModal" tabindex="-1" aria-labelledby="deleteCategoryModalLabel" aria-hidden="true">
         <div class="modal-dialog">
-            <form method="POST" action="{{ route('accounts.destroy', '__ID__') }}" id="deleteAccountForm"
-                data-base-action="{{ route('accounts.destroy', '__ID__') }}">
+            <form method="POST" action="{{ route('categoriesExpense.destroy', 'id') }}" id="deleteCategoryForm"
+                  data-base-action="{{ route('categoriesExpense.destroy', 'id') }}">
                 @csrf
                 @method('DELETE')
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title">Удаление счёта</h5>
+                        <h5 class="modal-title">Удаление категории</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
                     <div class="modal-body">
-                        Вы уверены, что хотите удалить этот счёт? Это действие необратимо.
+                        Вы уверены, что хотите удалить эту категорию? Это действие необратимо.
                     </div>
                     <div class="modal-footer">
                         <button type="submit" class="btn btn-danger">Удалить</button>
@@ -159,45 +146,35 @@
         </div>
     </div>
 
-
-
 @endsection
 
 @push('scripts')
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            const modal = document.getElementById('editAccountModal');
-            const form = document.getElementById('editAccountForm');
-            const nameInput = form.querySelector('input[name="name"]');
-            const noteInput = form.querySelector('textarea[name="note"]');
+            const editModal = document.getElementById('editCategoryModal');
+            const editForm = document.getElementById('editCategoryForm');
+            const nameInput = editForm.querySelector('input[name="name"]');
 
-            modal.addEventListener('show.bs.modal', function (event) {
+            editModal.addEventListener('show.bs.modal', function (event) {
                 const button = event.relatedTarget;
                 const id = button.getAttribute('data-id');
                 const name = button.getAttribute('data-name');
-                const note = button.getAttribute('data-note');
-
-                form.action = form.getAttribute('data-base-action').replace('__ID__', id);
+                editForm.action = editForm.getAttribute('data-base-action').replace('id', id);
                 nameInput.value = name ?? '';
-                noteInput.value = note ?? '';
             });
 
-            modal.addEventListener('hidden.bs.modal', function () {
-                form.action = form.getAttribute('data-base-action');
-                form.reset();
+            editModal.addEventListener('hidden.bs.modal', function () {
+                editForm.action = editForm.getAttribute('data-base-action');
+                editForm.reset();
             });
-        });
-    </script>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const deleteModal = document.getElementById('deleteAccountModal');
-            const deleteForm = document.getElementById('deleteAccountForm');
+            const deleteModal = document.getElementById('deleteCategoryModal');
+            const deleteForm = document.getElementById('deleteCategoryForm');
 
             deleteModal.addEventListener('show.bs.modal', function (event) {
                 const button = event.relatedTarget;
                 const id = button.getAttribute('data-id');
-                deleteForm.action = deleteForm.getAttribute('data-base-action').replace('__ID__', id);
+                deleteForm.action = deleteForm.getAttribute('data-base-action').replace('id', id);
             });
 
             deleteModal.addEventListener('hidden.bs.modal', function () {

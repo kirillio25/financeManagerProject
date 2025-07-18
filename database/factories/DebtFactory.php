@@ -2,23 +2,26 @@
 
 namespace Database\Factories;
 
-use App\Models\Transaction;
+use App\Models\Debt;
 use App\Models\User;
-use App\Models\Account;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
-class TransactionFactory extends Factory
+class DebtFactory extends Factory
 {
-    protected $model = Transaction::class;
+    protected $model = Debt::class;
 
     public function definition(): array
     {
         return [
             'user_id' => User::factory(),
+            'debt_direction' => $this->faker->numberBetween(1, 2),
+            'name' => $this->faker->words(2, true),
             'amount' => $this->faker->randomFloat(2, 10, 1000),
-            'type_id' => $this->faker->randomElement([0, 1]),
-            'category_id' => 0, // или CategoryIncome/Expense::factory() в зависимости от type_id
-            'account_id' => Account::factory(),
+            'contact_method' => $this->faker->optional()->email(),
+            'description' => $this->faker->optional()->sentence(),
+            'status' => $this->faker->numberBetween(1, 2),
+            'created_at' => now(),
+            'updated_at' => now(),
         ];
     }
 }

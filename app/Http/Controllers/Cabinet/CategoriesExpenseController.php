@@ -2,57 +2,38 @@
 
 namespace App\Http\Controllers\Cabinet;
 
-use app\Http\Controllers\Controller;
+use App\Http\Controllers\Controller;
 
-use App\Services\Cabinet\AccountService;
-use App\Http\Requests\ProfileUpdateRequest;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Redirect;
-use Illuminate\View\View;
+use App\Http\Requests\Cabinet\CategoriesExpenseRequest;
+use App\Services\Cabinet\CategoriesExpenseService;
+use App\Models\CategoriesExpense;
 
-use App\Models\Account;
 
-class CashAccountController extends Controller
+class CategoriesExpenseController extends Controller
 {
-    public function index(AccountService $service)
+    public function index(CategoriesExpenseService $service)
     {
-        $accounts = $service->getAccountsWithBalance();
-
-        return view('cabinet.profile.cash-account', compact('accounts'));
+        $categories = $service->getCategoriesExpense();
+        return view('cabinet.profile.categories-expense', compact('categories'));
     }
 
-    public function update(Request $request, Account $account)
+    public function store(CategoriesExpenseRequest $request, CategoriesExpenseService $service)
     {
-        $request->validate([
-            'name' => 'required|string|max:100',
-            'note' => 'nullable|string',
-        ]);
-
-        $account->update($request->only(['name', 'note']));
-
-        return redirect()->back()->with('success', 'Счёт обновлён.');
+        $service->store($request);
+        return redirect()->back()->with('success', 'Категория добавлена.');
     }
 
-    public function store(Request $request)
+
+    public function update(CategoriesExpenseRequest $request, CategoriesExpense $categoriesExpense)
     {
-        $request->validate([
-            'name' => 'required|string|max:100',
-            'note' => 'nullable|string',
-        ]);
-
-        auth()->user()->accounts()->create([
-            'name' => $request->name,
-            'note' => $request->note,
-        ]);
-
-        return redirect()->back()->with('success', 'Счёт добавлен.');
+        $categoriesExpense->update($request->only('name'));
+        return redirect()->back()->with('success', 'Категория обновлена.');
     }
 
-    public function destroy(Account $account)
+
+    public function destroy(CategoriesExpense $categoriesExpense)
     {
-        $account->delete();
-        return redirect()->back()->with('success', 'Счёт удалён.');
+        $categoriesExpense->delete();
+        return redirect()->back()->with('success', 'Категория удалёна.');
     }
 }

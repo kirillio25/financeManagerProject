@@ -7,7 +7,7 @@ use App\Http\Requests\Cabinet\StoreTransactionRequest;
 use App\Services\Cabinet\Currency\CurrencyRateService;
 use Illuminate\Support\Carbon;
 
-class TransactionService
+class TransactionMonthlyService
 {
     public function __construct(
         private CurrencyRateService $currencyRateService

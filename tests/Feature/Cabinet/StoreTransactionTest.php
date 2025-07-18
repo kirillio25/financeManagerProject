@@ -1,15 +1,17 @@
 <?php
 
 
-namespace Tests\Feature;
+namespace Tests\Feature\Cabinet;
 
-use Tests\TestCase;
-use App\Models\User;
-use App\Models\CategoriesIncome;
 use App\Models\Account;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-
+use App\Models\CategoriesIncome;
+use App\Models\User;
 use App\Services\Cabinet\Currency\CurrencyRateService;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
+use function Tests\Feature\now;
+use function Tests\Feature\number_format;
+use function Tests\Feature\route;
 
 class StoreTransactionTest extends TestCase
 {

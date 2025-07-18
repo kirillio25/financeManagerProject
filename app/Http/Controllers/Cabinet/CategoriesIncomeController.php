@@ -3,56 +3,36 @@
 namespace App\Http\Controllers\Cabinet;
 
 use App\Http\Controllers\Controller;
-
-use App\Services\Cabinet\CategoriesExpenseService;
-use App\Http\Requests\ProfileUpdateRequest;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Redirect;
-use Illuminate\View\View;
-
-use App\Models\CategoriesExpense;
+use App\Http\Requests\Cabinet\CategoriesIncomeRequest;
+use App\Services\Cabinet\CategoriesIncomeService;
+use App\Models\CategoriesIncome;
 
 
-class CategoriesExpenseController extends Controller
+class CategoriesIncomeController extends Controller
 {
-    public function index(CategoriesExpenseService $service)
+    public function index(CategoriesIncomeService $service)
     {
-        $categories = $service->getCategoriesExpense();
+        $categories = $service->getCategoriesIncome();
 
-        return view('cabinet.profile.categories-expense', compact('categories'));
+        return view('cabinet.profile.categories-income', compact('categories'));
     }
 
-    public function store(Request $request)
+    public function store(CategoriesIncomeRequest $request, CategoriesIncomeService $service)
     {
-        $request->validate([
-            'name' => 'required|string|max:100',
-        ]);
-
-        CategoriesExpense::create([
-            'user_id' => auth()->id(),
-            'name' => $request->name,
-        ]);
-
+        $service->store($request);
         return redirect()->back()->with('success', 'Категория добавлена.');
     }
 
-    public function update(Request $request, CategoriesExpense $categoriesExpense)
+    public function update(CategoriesIncomeRequest $request, CategoriesIncome $categoriesIncome)
     {
-        $request->validate([
-            'name' => 'required|string|max:100',
-        ]);
-
-        $categoriesExpense->update($request->only(['name']));
+        $categoriesIncome->update($request->only(['name']));
 
         return redirect()->back()->with('success', 'Категория обновлена.');
     }
 
-
-    public function destroy(CategoriesExpense $categoriesExpense)
+    public function destroy(CategoriesIncome $categoriesIncome)
     {
-        $categoriesExpense->delete();
-        return redirect()->back()->with('success', 'Счёт удалён.');
+        $categoriesIncome->delete();
+        return redirect()->back()->with('success', 'Категория удалёна.');
     }
 }

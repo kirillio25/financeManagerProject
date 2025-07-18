@@ -1,10 +1,10 @@
 <?php
 
-namespace Tests\Feature;
+namespace Tests\Feature\Cabinet;
 
-use App\Models\User;
 use App\Models\Account;
 use App\Models\CategoriesIncome;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
 use Tests\TestCase;
@@ -32,12 +32,13 @@ class TransactionMonthlyControllerTest extends TestCase
     public function test_store_creates_transaction()
     {
         $account = Account::factory()->create(['user_id' => $this->user->id]);
-        $сategoriyIncome = CategoriesIncome::factory()->create(['user_id' => $this->user->id]);
+        $categoryIncome = CategoriesIncome::factory()->create(['user_id' => $this->user->id]);
+
 
         $response = $this->post(route('monthlyStats.store'), [
             'amount' => 100,
             'type_id' => 0,
-            'category_id' => $сategoriyIncome->id,
+            'category_id' => $categoryIncome->id,
             'account_id' => $account->id,
             'date' => now()->toDateString(),
         ]);
@@ -46,7 +47,7 @@ class TransactionMonthlyControllerTest extends TestCase
 
         $this->assertDatabaseHas('transactions', [
             'user_id' => $this->user->id,
-            'category_id' => $сategoriyIncome->id,
+            'category_id' => $categoryIncome->id,
             'account_id' => $account->id,
         ]);
     }

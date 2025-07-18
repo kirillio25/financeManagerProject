@@ -7,80 +7,105 @@ use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 use App\Models\User;
-use App\Models\Account;
 use App\Models\CategoriesIncome;
-use App\Models\CategoriesExpense;
-use App\Models\Debt;
 use App\Models\Transaction;
 
-class ProfileSqlImportTest extends TestCase
+class ProfileImportTest extends TestCase
 {
     use RefreshDatabase;
 
-    protected User $user;
-
-    protected function setUp(): void
-    {
-        parent::setUp();
-        Storage::fake('local');
-        $this->user = User::factory()->create();
-        $this->actingAs($this->user);
-    }
-
-    protected function importFromSql(string $sql): void
-    {
-        $file = UploadedFile::fake()->createWithContent('import.sql', $sql);
-
-        $this->post(route('cabinet.profile.import.sql'), [
-            'sql_file' => $file,
-        ])->assertRedirect();
-    }
-
     public function test_import_skips_duplicates()
     {
-        $sql = <<<SQL
-        INSERT INTO categories_income (name, created_at, updated_at) VALUES ('Зарплата', now(), now());
-        INSERT INTO categories_income (name, created_at, updated_at) VALUES ('Зарплата', now(), now());
-        SQL;
+        $user = User::factory()->create();
+        $sql = "INSERT INTO categories_income (name, created_at, updated_at) VALUES ('Зарплата', '2025-07-18 10:24:09', '2025-07-18 10:24:09');";
 
-        $this->importFromSql($sql);
+        CategoriesIncome::factory()->create(['user_id' => $user->id, 'name' => 'Зарплата']);
 
-        $this->assertEquals(1, CategoriesIncome::where('user_id', $this->user->id)->where('name', 'Зарплата')->count());
+        Storage::fake('local');
+        $file = UploadedFile::fake()->createWithContent('import.sql', $sql);
+
+        $this->actingAs($user)
+            ->post(route('cabinet.profile.import.sql'), ['sql_file' => $file])
+            ->assertRedirect();
+
+        $this->assertDatabaseCount('categories_income', 1);
     }
 
-    public function test_import_saves_all_valid_data()
+    public function test_import_saves_data_correctly()
     {
-        $sql = <<<SQL
-        INSERT INTO accounts (name, note, created_at, updated_at) VALUES ('Карта', 'Visa', now(), now());
-        INSERT INTO categories_expense (name, created_at, updated_at) VALUES ('Продукты', now(), now());
-        INSERT INTO debts (debt_direction, name, amount, contact_method, description, status, created_at, updated_at)
-        VALUES (0, 'Друг', 500.00, 'Телефон', 'описание', 1, now(), now());
-        SQL;
+        $user = User::factory()->create();
+        $sql = "INSERT INTO categories_income (name, created_at, updated_at) VALUES ('Фриланс', '2025-07-18 10:24:09', '2025-07-18 10:24:09');";
 
-        $this->importFromSql($sql);
+        $file = UploadedFile::fake()->createWithContent('import.sql', $sql);
 
-        $this->assertDatabaseHas('accounts', ['name' => 'Карта', 'user_id' => $this->user->id]);
-        $this->assertDatabaseHas('categories_expense', ['name' => 'Продукты', 'user_id' => $this->user->id]);
-        $this->assertDatabaseHas('debts', ['name' => 'Друг', 'user_id' => $this->user->id]);
+        $this->actingAs($user)
+            ->post(route('cabinet.profile.import.sql'), ['sql_file' => $file])
+            ->assertRedirect();
+
+        $this->assertDatabaseHas('categories_income', [
+            'user_id' => $user->id,
+            'name' => 'Фриланс',
+        ]);
     }
 
-    public function test_import_partial_tables()
+    public function test_import_with_missing_table_section()
     {
-        $sql1 = <<<SQL
-        INSERT INTO accounts (name, note, created_at, updated_at) VALUES ('Наличные', 'Кошелек', now(), now());
+        $user = User::factory()->create();
+
+        $sql = <<<SQL
+        INSERT INTO categories_income (name, created_at, updated_at) VALUES ('Зарплата', '2025-07-18 10:24:09', '2025-07-18 10:24:09');
+        -- отсутсвует accounts и transactions
+        INSERT INTO categories_expense (name, created_at, updated_at) VALUES ('Еда', '2025-07-18 10:24:09', '2025-07-18 10:24:09');
         SQL;
 
-        $sql2 = <<<SQL
-        INSERT INTO categories_income (name, created_at, updated_at) VALUES ('Фриланс', now(), now());
+        $file = UploadedFile::fake()->createWithContent('partial.sql', $sql);
+
+        $this->actingAs($user)
+            ->post(route('cabinet.profile.import.sql'), ['sql_file' => $file])
+            ->assertRedirect();
+
+        $this->assertDatabaseHas('categories_income', ['user_id' => $user->id, 'name' => 'Зарплата']);
+        $this->assertDatabaseHas('categories_expense', ['user_id' => $user->id, 'name' => 'Еда']);
+    }
+
+    public function test_import_fails_gracefully_on_malformed_sql()
+    {
+        $user = User::factory()->create();
+        $invalidSql = "INSERT INTO unknown_table (id) VALUES (1"; // незакрытая скобка — синтаксическая ошибка
+
+        $file = UploadedFile::fake()->createWithContent('invalid.sql', $invalidSql);
+
+        $this->actingAs($user)
+            ->post(route('cabinet.profile.import.sql'), ['sql_file' => $file])
+            ->assertRedirect()
+            ->assertSessionHas('error', 'Импорт не удался. См. лог.');
+    }
+
+
+    public function test_guest_cannot_import_data()
+    {
+        $file = UploadedFile::fake()->createWithContent('guest.sql', '');
+
+        $this->post(route('cabinet.profile.import.sql'), ['sql_file' => $file])
+            ->assertRedirect(route('login'));
+    }
+
+    public function test_import_ignores_transaction_with_missing_foreign_keys()
+    {
+        $user = User::factory()->create();
+
+        $sql = <<<SQL
         INSERT INTO transactions (amount, type_id, category_id, account_id, created_at, updated_at)
-        VALUES (100.00, 1, 0, 0, now(), now());
+        VALUES (100.00, 999, 999, 999, '2025-07-18 10:24:09', '2025-07-18 10:24:09');
         SQL;
 
-        $this->importFromSql($sql1);
-        $this->assertDatabaseHas('accounts', ['name' => 'Наличные', 'user_id' => $this->user->id]);
+        $file = UploadedFile::fake()->createWithContent('invalid_foreign.sql', $sql);
 
-        $this->importFromSql($sql2);
-        $this->assertDatabaseHas('categories_income', ['name' => 'Фриланс', 'user_id' => $this->user->id]);
-        $this->assertEquals(1, Transaction::where('user_id', $this->user->id)->count());
+        $this->actingAs($user)
+            ->post(route('cabinet.profile.import.sql'), ['sql_file' => $file])
+            ->assertRedirect();
+
+        $this->assertDatabaseMissing('transactions', ['amount' => 100.00]);
     }
+
 }

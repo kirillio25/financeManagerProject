@@ -1,4 +1,4 @@
-@extends('layouts.cabinet_layout')
+@extends('layouts.app')
 
 @section('title', 'Статистика по месяцам')
 @section('content')
@@ -37,7 +37,7 @@
 <!-- Модальное окно -->
 <div class="modal fade" id="addTransactionModal" tabindex="-1" aria-labelledby="addTransactionModalLabel" aria-hidden="true">
   <div class="modal-dialog">
-    <form method="POST" action="{{ route('transactions.store') }}">
+    <form method="POST" action="{{ route('monthlyStats.store') }}">
       @csrf
       <div class="modal-content">
         <div class="modal-header">
@@ -95,10 +95,10 @@
   <div class="container-fluid mb-3">
     <div class="row">
       <div class="col-12 d-flex justify-content-center align-items-center gap-3">
-       <a href="{{ route('transactions.index', ['month' => $prevMonth]) }}" class="btn btn-outline-secondary btn-sm">&larr;</a>
+       <a href="{{ route('monthlyStats.index', ['month' => $prevMonth]) }}" class="btn btn-outline-secondary btn-sm">&larr;</a>
         <h4 class="mb-0">{{ $carbonMonth->translatedFormat('F Y') }}</h4>
         @if($carbonMonth->lt(now()->startOfMonth()))
-          <a href="{{ route('transactions.index', ['month' => $nextMonth]) }}" class="btn btn-outline-secondary btn-sm">&rarr;</a>
+          <a href="{{ route('monthlyStats.index', ['month' => $nextMonth]) }}" class="btn btn-outline-secondary btn-sm">&rarr;</a>
         @else
           <span class="btn btn-outline-secondary btn-sm disabled">&rarr;</span>
         @endif
@@ -142,7 +142,7 @@
 
 
 
-  
+
 
 @push('scripts')
 <script>
@@ -234,5 +234,4 @@ new Chart(document.getElementById('financeChart'), {
 @endpush
 
 
-       
-      
+

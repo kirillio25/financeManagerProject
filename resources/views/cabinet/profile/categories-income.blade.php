@@ -1,6 +1,6 @@
-@extends('layouts.cabinet_layout')
+@extends('layouts.app')
 
-@section('title', 'Категории расходов')
+@section('title', 'Категории доходов')
 
 @section('content')
 
@@ -9,7 +9,7 @@
             <div class="row">
                 <div class="col-12">
                     <div class="d-flex justify-content-between align-items-center">
-                        <h3 class="mb-0">Категории расходов</h3>
+                        <h3 class="mb-0">Категории доходов</h3>
                         <button type="button" class="btn btn-outline-success" data-bs-toggle="modal"
                             data-bs-target="#addAccountModal">Добавить</button>
                     </div>
@@ -73,8 +73,8 @@
     <!-- Modal: Редактирование -->
     <div class="modal fade" id="editCategoryModal" tabindex="-1" aria-labelledby="editCategoryModalLabel" aria-hidden="true">
         <div class="modal-dialog">
-            <form method="POST" action="{{ route('categoriesExpense.update', 'id') }}" id="editCategoryForm"
-                  data-base-action="{{ route('categoriesExpense.update', 'id') }}">
+            <form method="POST" action="{{ route('categoriesIncome.update', 'id') }}" id="editCategoryForm"
+                  data-base-action="{{ route('categoriesIncome.update', 'id') }}">
                 @csrf
                 @method('PUT')
                 <div class="modal-content">
@@ -100,7 +100,7 @@
     <!-- Modal: Добавления -->
     <div class="modal fade" id="addAccountModal" tabindex="-1" aria-labelledby="addAccountModalLabel" aria-hidden="true">
         <div class="modal-dialog">
-            <form method="POST" action="{{ route('categoriesExpense.store') }}">
+            <form method="POST" action="{{ route('categoriesIncome.store') }}">
                 @csrf
                 <div class="modal-content">
                     <div class="modal-header">
@@ -125,8 +125,8 @@
     <!-- Modal: Удаление -->
     <div class="modal fade" id="deleteCategoryModal" tabindex="-1" aria-labelledby="deleteCategoryModalLabel" aria-hidden="true">
         <div class="modal-dialog">
-            <form method="POST" action="{{ route('categoriesExpense.destroy', 'id') }}" id="deleteCategoryForm"
-                  data-base-action="{{ route('categoriesExpense.destroy', 'id') }}">
+            <form method="POST" action="{{ route('categoriesIncome.destroy', 'id') }}" id="deleteCategoryForm"
+                  data-base-action="{{ route('categoriesIncome.destroy', 'id') }}">
                 @csrf
                 @method('DELETE')
                 <div class="modal-content">

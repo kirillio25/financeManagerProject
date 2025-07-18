@@ -1,4 +1,4 @@
-@extends('layouts.cabinet_layout')
+@extends('layouts.app')
 
 @section('title', 'Годовая статистика')
 

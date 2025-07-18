@@ -1,10 +1,10 @@
-<?php 
+<?php
 
 namespace Tests\Unit\Cabinet;
 
 use Tests\TestCase;
 use App\Models\Transaction;
-use App\Services\Cabinet\Transaction\TransactionService;
+use App\Services\Cabinet\Transaction\TransactionMonthlyService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class TransactionServiceTest extends TestCase
@@ -13,7 +13,7 @@ class TransactionServiceTest extends TestCase
 
     public function it_creates_transaction()
     {
-        $service = new TransactionService();
+        $service = new TransactionMonthlyService();
 
         $service->store([
             'user_id' => 1,

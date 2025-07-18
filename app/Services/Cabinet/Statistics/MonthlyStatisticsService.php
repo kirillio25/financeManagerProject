@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 namespace App\Services\Cabinet\Statistics;
 
@@ -6,6 +6,7 @@ use App\Models\Transaction;
 use App\Models\CategoriesIncome;
 use App\Models\CategoriesExpense;
 use App\Models\Account;
+use App\Http\Requests\Cabinet\MonthlyStatsRequest;
 use App\DTOs\Cabinet\MonthlyStatsDTO;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
@@ -15,13 +16,11 @@ class MonthlyStatisticsService
     // Метод генерации статистики доходов/расходов и графика
     public function getMonthlyStats(int $userId, MonthlyStatsDTO $dto): array
     {
-        // Получаем транзакции пользователя за месяц
         $transactions = Transaction::where('user_id', $userId)
             ->whereBetween('created_at', [$dto->start, $dto->end])
             ->get()
             ->groupBy(fn($t) => Carbon::parse($t->created_at)->format('d.m'));
 
-        // Генерируем список дней месяца
         $dates = collect();
         $cursor = $dto->start->copy();
         while ($cursor->month === $dto->start->month) {
@@ -29,7 +28,6 @@ class MonthlyStatisticsService
             $cursor->addDay();
         }
 
-        // Подсчёт доходов и расходов по каждому дню
         $incomeData = [];
         $expenseData = [];
 
@@ -41,7 +39,6 @@ class MonthlyStatisticsService
             $expenseData[] = round($expense * -1, 2);
         }
 
-        // Возвращаем агрегированные данные
         return [
             'dates' => $dates,
             'incomeData' => $incomeData,
@@ -59,5 +56,23 @@ class MonthlyStatisticsService
             'expenseCategories' => CategoriesExpense::where('user_id', $userId)->get(['id', 'name']),
             'accounts' => Account::where('user_id', $userId)->get(['id', 'name']),
         ];
+    }
+
+    public function handle(MonthlyStatsRequest $request): array
+    {
+        $userId = auth()->id();
+        $carbonMonth = $request->getMonth();
+        $dto = MonthlyStatsDTO::fromCarbonMonth($carbonMonth);
+
+        return array_merge(
+            $this->getMonthlyStats($userId, $dto),
+            $this->getCategories($userId),
+            [
+                'selectedMonth' => $dto->selectedMonth,
+                'prevMonth' => $dto->prevMonth,
+                'nextMonth' => $dto->nextMonth,
+                'carbonMonth' => $carbonMonth,
+            ]
+        );
     }
 }

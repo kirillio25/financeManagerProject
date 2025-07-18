@@ -4,7 +4,7 @@ namespace App\Http\Requests\Cabinet;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class CategoriesExpenseRequest extends FormRequest
+class CategoriesIncomeRequest extends FormRequest
 {
     public function authorize(): bool
     {

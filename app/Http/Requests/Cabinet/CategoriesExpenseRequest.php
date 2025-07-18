@@ -4,7 +4,7 @@ namespace App\Http\Requests\Cabinet;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class AccountRequest extends FormRequest
+class CategoriesExpenseRequest extends FormRequest
 {
     public function authorize(): bool
     {
@@ -15,8 +15,6 @@ class AccountRequest extends FormRequest
     {
         return [
             'name' => 'required|string|max:100',
-            'note' => 'nullable|string',
         ];
     }
-
 }

@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 namespace App\Http\Requests\Cabinet;
 
@@ -13,7 +13,6 @@ class MonthlyStatsRequest extends FormRequest
         return true;
     }
 
-    // Правила валидации: параметр "month" должен быть в формате "Y-m"
     public function rules(): array
     {
         return [
@@ -21,7 +20,6 @@ class MonthlyStatsRequest extends FormRequest
         ];
     }
 
-    // Метод для получения Carbon-объекта месяца — нормализует входные данные
     public function getMonth(): Carbon
     {
         return Carbon::createFromFormat('Y-m', $this->input('month', now()->format('Y-m')));

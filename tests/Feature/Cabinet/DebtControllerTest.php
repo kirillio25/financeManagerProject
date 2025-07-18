@@ -1,10 +1,12 @@
 <?php
 
-namespace Tests\Feature;
+namespace Tests\Feature\Cabinet;
 
-use App\Models\User;
 use App\Models\Debt;
+use App\Models\User;
+use App\Services\Cabinet\Currency\CurrencyRateService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\App;
 use Tests\TestCase;
 
 class DebtControllerTest extends TestCase
@@ -16,8 +18,15 @@ class DebtControllerTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+
         $this->user = User::factory()->create();
         $this->actingAs($this->user);
+
+        // Мокаем курс доллара
+        $mock = \Mockery::mock(CurrencyRateService::class);
+        $mock->shouldReceive('getUsdRate')->andReturn(500.0); // курс для расчета
+
+        App::instance(CurrencyRateService::class, $mock);
     }
 
     public function test_index_returns_ok()
@@ -38,12 +47,11 @@ class DebtControllerTest extends TestCase
 
         $response->assertRedirect();
 
-        $this->assertTrue(
-            Debt::where('name', 'Тест')
-                ->where('user_id', $this->user->id)
-                ->where('amount', 1000)
-                ->exists()
-        );
+        $this->assertDatabaseHas('debts', [
+            'name' => 'Тест',
+            'user_id' => $this->user->id,
+            'amount' => 2.00, // 1000 / 500
+        ]);
     }
 
     public function test_update_changes_debt()
@@ -60,12 +68,11 @@ class DebtControllerTest extends TestCase
 
         $response->assertRedirect();
 
-        $this->assertTrue(
-            Debt::where('id', $debt->id)
-                ->where('name', 'Изменено')
-                ->where('amount', 2000)
-                ->exists()
-        );
+        $this->assertDatabaseHas('debts', [
+            'id' => $debt->id,
+            'name' => 'Изменено',
+            'amount' => 4.00, // 2000 / 500
+        ]);
     }
 
     public function test_destroy_deletes_debt()
@@ -75,7 +82,7 @@ class DebtControllerTest extends TestCase
         $response = $this->delete("/debts/{$debt->id}");
 
         $response->assertRedirect();
-        $this->assertFalse(Debt::where('id', $debt->id)->exists());
+        $this->assertDatabaseMissing('debts', ['id' => $debt->id]);
     }
 
     public function test_toggle_status_changes_status()

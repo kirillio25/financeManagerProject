@@ -25,9 +25,9 @@ class AuthenticationTest extends TestCase
             'email' => $user->email,
             'password' => 'password',
         ]);
-
+//        dd($response);
         $this->assertAuthenticated();
-        $response->assertRedirect(route('monthlyStats', absolute: false));
+        $response->assertRedirect(route('monthlyStats.index', absolute: false));
     }
 
     public function test_users_can_not_authenticate_with_invalid_password(): void

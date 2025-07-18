@@ -2,12 +2,21 @@
 
 namespace App\Services\Cabinet;
 
-use App\Models\CategoriesExpense;
+use App\Models\CategoriesIncome;
+use App\Http\Requests\Cabinet\CategoriesIncomeRequest;
 
-class CategoriesExpenseService
+class CategoriesIncomeService
 {
-    public function getCategoriesExpense()
+    public function getCategoriesIncome()
     {
-        return CategoriesExpense::where('user_id', auth()->id())->get();
+        return CategoriesIncome::where('user_id', auth()->id())->get();
+    }
+
+    public function store(CategoriesIncomeRequest $request): void
+    {
+        CategoriesIncome::create([
+            'user_id' => auth()->id(),
+            'name' => $request->name,
+        ]);
     }
 }

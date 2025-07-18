@@ -1,4 +1,4 @@
-@extends('layouts.cabinet_layout')
+@extends('layouts.app')
 
 @section('title', 'Счета')
 
@@ -17,7 +17,6 @@
             </div>
         </div>
     </div>
-
 
     <div class="container-fluid py-4">
         <div class="row">
@@ -77,8 +76,8 @@
     <!-- Модальное окно редактирования -->
     <div class="modal fade" id="editAccountModal" tabindex="-1" aria-labelledby="editAccountModalLabel" aria-hidden="true">
         <div class="modal-dialog">
-            <form method="POST" action="{{ route('accounts.update', '__ID__') }}" id="editAccountForm"
-                data-base-action="{{ route('accounts.update', '__ID__') }}">
+            <form method="POST" action="{{ route('accounts.update', 'id') }}" id="editAccountForm"
+                data-base-action="{{ route('accounts.update', 'id') }}">
                 @csrf
                 @method('PUT')
                 <div class="modal-content">
@@ -138,8 +137,8 @@
     <div class="modal fade" id="deleteAccountModal" tabindex="-1" aria-labelledby="deleteAccountModalLabel"
         aria-hidden="true">
         <div class="modal-dialog">
-            <form method="POST" action="{{ route('accounts.destroy', '__ID__') }}" id="deleteAccountForm"
-                data-base-action="{{ route('accounts.destroy', '__ID__') }}">
+            <form method="POST" action="{{ route('accounts.destroy', 'id') }}" id="deleteAccountForm"
+                data-base-action="{{ route('accounts.destroy', 'id') }}">
                 @csrf
                 @method('DELETE')
                 <div class="modal-content">
@@ -177,7 +176,7 @@
                 const name = button.getAttribute('data-name');
                 const note = button.getAttribute('data-note');
 
-                form.action = form.getAttribute('data-base-action').replace('__ID__', id);
+                form.action = form.getAttribute('data-base-action').replace('id', id);
                 nameInput.value = name ?? '';
                 noteInput.value = note ?? '';
             });
@@ -197,7 +196,7 @@
             deleteModal.addEventListener('show.bs.modal', function (event) {
                 const button = event.relatedTarget;
                 const id = button.getAttribute('data-id');
-                deleteForm.action = deleteForm.getAttribute('data-base-action').replace('__ID__', id);
+                deleteForm.action = deleteForm.getAttribute('data-base-action').replace('id', id);
             });
 
             deleteModal.addEventListener('hidden.bs.modal', function () {

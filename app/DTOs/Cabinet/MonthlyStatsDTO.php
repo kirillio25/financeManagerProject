@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 namespace App\DTOs\Cabinet;
 
@@ -6,7 +6,6 @@ use Carbon\Carbon;
 
 class MonthlyStatsDTO
 {
-    // DTO хранит нормализованные параметры периода
     public function __construct(
         public Carbon $start,
         public Carbon $end,
@@ -15,7 +14,6 @@ class MonthlyStatsDTO
         public string $nextMonth,
     ) {}
 
-    // Упрощённый способ создать DTO из Carbon-месяца
     public static function fromCarbonMonth(Carbon $carbonMonth): self
     {
         $start = $carbonMonth->copy()->startOfMonth();
