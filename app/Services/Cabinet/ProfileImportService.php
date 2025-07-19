@@ -70,7 +70,7 @@ class ProfileImportService
                 }
 
                 if (str_starts_with($line, 'INSERT INTO debts')) {
-                    if (!preg_match_all("/\((\d+), '([^']+)', ([\d.]+), '([^']*)', '([^']*)', (\d+), '([^']+)', '([^']+)'\)/", $line, $matches, PREG_SET_ORDER)) {
+                    if (!preg_match_all("/\((\d+), '([^']+)', ([\d.]+), (NULL|'[^']*'), (NULL|'[^']*'), (\d+), '([^']+)', '([^']+)'\)/i", $line, $matches, PREG_SET_ORDER)) {
                         throw new \RuntimeException("Невалидный INSERT в debts: $line");
                     }
                     foreach ($matches as $m) {
@@ -80,8 +80,8 @@ class ProfileImportService
                             'name' => $m[2],
                         ], [
                             'amount' => $m[3],
-                            'contact_method' => $m[4],
-                            'description' => $m[5],
+                            'contact_method' => strtoupper($m[4]) === 'NULL' ? null : trim($m[4], "'"),
+                            'description' => strtoupper($m[5]) === 'NULL' ? null : trim($m[5], "'"),
                             'status' => $m[6],
                             'created_at' => $m[7],
                             'updated_at' => $m[8],
