@@ -39,6 +39,10 @@ class YearlyStatisticsService
         return [
             'year' => $year,
             'months' => $months,
+            'totalIncome' => $months->sum('income'),
+            'totalExpense' => $months->sum('expense'),
+            'prevYear' => $year - 1,
+            'nextYear' => $year + 1,
         ];
     }
 }

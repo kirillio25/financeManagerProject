@@ -128,10 +128,10 @@ new Chart(ctx, {
     },
     scales: {
       y: {
-        min: -500,
-        max: 500,
+        min: -80000,
+        max: 80000,
         ticks: {
-          stepSize: 100,
+          stepSize: 10000,
           callback: value => value + ' $'
         }
       }

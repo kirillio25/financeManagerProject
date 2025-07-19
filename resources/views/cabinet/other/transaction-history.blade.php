@@ -74,6 +74,10 @@
                 </div>
             </div>
         </div>
+
+        <div class="d-flex justify-content-center mt-4">
+            {{ $transactions->links() }}
+        </div>
     </div>
 
 
@@ -137,11 +141,14 @@
     </div>
 @endsection
 
+
 @push('scripts')
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const deleteModal = document.getElementById('deleteTransactionModal');
             const deleteForm = document.getElementById('deleteTransactionForm');
+
+            if (!deleteModal || !deleteForm) return;
 
             deleteModal.addEventListener('show.bs.modal', function (event) {
                 const button = event.relatedTarget;
@@ -155,4 +162,6 @@
         });
     </script>
 @endpush
+
+
 

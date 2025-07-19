@@ -6,11 +6,11 @@ use App\Http\Controllers\Controller;
 use App\Models\Transaction;
 use App\Services\Cabinet\Transaction\TransactionHistoryService;
 
-class TransactionHaistoryController extends Controller
+class TransactionHistoryController extends Controller
 {
     public function index(TransactionHistoryService $service)
     {
-        $transactions = $service->getUserTransactions();
+        $transactions = $service->getPaginatedUserTransactions();
         return view('cabinet.other.transaction-history', compact('transactions'));
     }
 

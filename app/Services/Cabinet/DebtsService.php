@@ -14,7 +14,9 @@ class DebtsService
 
     public function getMyDebts()
     {
-        return Debt::where('user_id', auth()->id())->get();
+        return Debt::where('user_id', auth()->id())
+            ->orderByDesc('created_at')
+            ->paginate(20);
     }
 
     public function toggleStatus(Debt $debt): void

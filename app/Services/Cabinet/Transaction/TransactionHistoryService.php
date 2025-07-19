@@ -1,18 +1,18 @@
 <?php
 
 namespace App\Services\Cabinet\Transaction;
-
+use Illuminate\Pagination\LengthAwarePaginator;
 use App\Models\Transaction;
 
 class TransactionHistoryService
 {
-    public function getUserTransactions(): array
+    public function getPaginatedUserTransactions(): LengthAwarePaginator
     {
         return Transaction::with(['account', 'categoryIncome', 'categoryExpense'])
             ->where('user_id', auth()->id())
             ->orderByDesc('created_at')
-            ->get()
-            ->map(function ($transaction) {
+            ->paginate(20)
+            ->through(function ($transaction) {
                 return [
                     'id' => $transaction->id,
                     'amount' => $transaction->amount,
@@ -23,7 +23,6 @@ class TransactionHistoryService
                     'account' => optional($transaction->account)->name,
                     'date' => $transaction->created_at->format('Y-m-d H:i'),
                 ];
-            })
-            ->toArray();
+            });
     }
 }

@@ -84,7 +84,7 @@
                             @endforeach
                             @if($debts->isEmpty())
                                 <tr>
-                                    <td colspan="8" class="text-center text-muted">Нет данных</td>
+                                    <td colspan="9" class="text-center text-muted">Нет данных</td>
                                 </tr>
                             @endif
                             </tbody>
@@ -92,6 +92,9 @@
                     </div>
                 </div>
             </div>
+        </div>
+        <div class="d-flex justify-content-center mt-4">
+            {{ $debts->links() }}
         </div>
     </div>
 
@@ -214,14 +217,13 @@
 
 @endsection
 
+
 @push('scripts')
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const addModal = document.getElementById('addDebtModal');
             const addForm = addModal.querySelector('form');
 
-
-            // Сброс формы при закрытии
             addModal.addEventListener('hidden.bs.modal', function () {
                 addForm.reset();
             });
@@ -272,10 +274,7 @@
                 editForm.reset();
                 editForm.action = editForm.getAttribute('data-base-action');
             });
-
-
         });
     </script>
-
-
 @endpush
+

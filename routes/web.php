@@ -7,7 +7,7 @@ use App\Http\Controllers\Cabinet\TransactionAllTimeController;
 use App\Http\Controllers\Cabinet\CashAccountController;
 use App\Http\Controllers\Cabinet\CategoriesExpenseController;
 use App\Http\Controllers\Cabinet\CategoriesIncomeController;
-use App\Http\Controllers\Cabinet\TransactionHaistoryController;
+use App\Http\Controllers\Cabinet\TransactionHistoryController;
 use App\Http\Controllers\Cabinet\DebtController;
 
 use Illuminate\Support\Facades\Route;
@@ -27,10 +27,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('categoriesIncome', CategoriesIncomeController::class);
 
 
-    Route::get('/transactionHistory', [TransactionHaistoryController::class, 'index'])
+    Route::get('/transactionHistory', [TransactionHistoryController::class, 'index'])
         ->name('transactionHistory.index');
 
-    Route::delete('/transactionHistory/{transaction}', [TransactionHaistoryController::class, 'destroy'])
+    Route::delete('/transactionHistory/{transaction}', [TransactionHistoryController::class, 'destroy'])
         ->name('transactionHistory.destroy');
 
     Route::resource('debts', DebtController::class);
