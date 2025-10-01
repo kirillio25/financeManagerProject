@@ -14,9 +14,9 @@ class TransactionHistoryController extends Controller
         return view('cabinet.other.transaction-history', compact('transactions'));
     }
 
-    public function destroy(Transaction $transaction)
+    public function destroy(Transaction $transaction, TransactionHistoryService $service)
     {
-        $transaction->delete();
+        $service->deleteTransaction($transaction);
         return redirect()->back()->with('success', 'Транзакция удалена.');
     }
 }

@@ -7,23 +7,22 @@ use App\Models\CategoriesIncome;
 use App\Models\CategoriesExpense;
 use App\Models\Account;
 use App\Http\Requests\Cabinet\MonthlyStatsRequest;
-use App\DTOs\Cabinet\MonthlyStatsDTO;
+use App\Services\Cabinet\StatsCacheService;
 use Carbon\Carbon;
-use Illuminate\Support\Collection;
 
 class MonthlyStatisticsService
 {
-    // Метод генерации статистики доходов/расходов и графика
-    public function getMonthlyStats(int $userId, MonthlyStatsDTO $dto): array
+    // генерация статистики доходов/расходов и графика
+    public function getMonthlyStats(int $userId, Carbon $start, Carbon $end): array
     {
         $transactions = Transaction::where('user_id', $userId)
-            ->whereBetween('created_at', [$dto->start, $dto->end])
+            ->whereBetween('created_at', [$start, $end])
             ->get()
             ->groupBy(fn($t) => Carbon::parse($t->created_at)->format('d.m'));
 
         $dates = collect();
-        $cursor = $dto->start->copy();
-        while ($cursor->month === $dto->start->month) {
+        $cursor = $start->copy();
+        while ($cursor->month === $start->month) {
             $dates->push($cursor->format('d.m'));
             $cursor->addDay();
         }
@@ -62,17 +61,23 @@ class MonthlyStatisticsService
     {
         $userId = auth()->id();
         $carbonMonth = $request->getMonth();
-        $dto = MonthlyStatsDTO::fromCarbonMonth($carbonMonth);
 
-        return array_merge(
-            $this->getMonthlyStats($userId, $dto),
-            $this->getCategories($userId),
-            [
-                'selectedMonth' => $dto->selectedMonth,
-                'prevMonth' => $dto->prevMonth,
-                'nextMonth' => $dto->nextMonth,
-                'carbonMonth' => $carbonMonth,
-            ]
-        );
+        $start = $carbonMonth->copy()->startOfMonth();
+        $end = $carbonMonth->copy()->endOfMonth();
+
+        $range = $start->format('Y-m');
+
+        return app(StatsCacheService::class)->remember('monthly', $userId, $range, function () use ($userId, $start, $end, $carbonMonth) {
+            return array_merge(
+                $this->getMonthlyStats($userId, $start, $end),
+                $this->getCategories($userId),
+                [
+                    'selectedMonth' => $carbonMonth->format('Y-m'),
+                    'prevMonth' => $carbonMonth->copy()->subMonth()->format('Y-m'),
+                    'nextMonth' => $carbonMonth->copy()->addMonth()->format('Y-m'),
+                    'carbonMonth' => $carbonMonth,
+                ]
+            );
+        });
     }
 }

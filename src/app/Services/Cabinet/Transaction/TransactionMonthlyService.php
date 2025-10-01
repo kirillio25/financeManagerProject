@@ -5,6 +5,7 @@ namespace App\Services\Cabinet\Transaction;
 use App\Models\Transaction;
 use App\Http\Requests\Cabinet\StoreTransactionRequest;
 use App\Services\Cabinet\Currency\CurrencyRateService;
+use App\Services\Cabinet\StatsCacheService;
 use Illuminate\Support\Carbon;
 
 class TransactionMonthlyService
@@ -24,6 +25,9 @@ class TransactionMonthlyService
             'created_at' => Carbon::parse($data['date'])->setTimeFrom(now()),
             'updated_at' => now(),
         ]);
+
+        app(StatsCacheService::class)->updateCaches($data['user_id'], \Illuminate\Support\Carbon::parse($data['date']), $data['amount'], $data['type_id']);
+
     }
 
     public function handle(StoreTransactionRequest $request): void

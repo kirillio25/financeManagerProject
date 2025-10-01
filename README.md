@@ -1,32 +1,39 @@
-## Запуск докера
+# Настройка
+
+Запуск
+```bash
 docker compose up -d
+```
+
+Устанавливаем зависимости
+```bash
+docker compose run composer install
+docker compose run composer require predis/predis
+```
+
+Ключ и миграции
+```bash
+docker compose run artisan key:generate
+docker compose run artisan migrate
+```
+
+Заполнения данных
+```bash
+docker compose run artisan db:seed
+```
+
+Тестирование
+```bash
+docker compose run artisan test 
+```
+
+## Блок схемы
+
+![financeManagerProject.svg](financeManagerProject.svg)
 
 
-## Первый запуск проекта 
-composer install
-npm intsall
-npm run dev
-cp .env.example .env
+## Видео и скриншоты
 
-Настроить .env и .env.testing.
-Пример:
-DB_CONNECTION=mysql
-DB_HOST=db
-DB_PORT=3306
-DB_DATABASE=my_database
-DB_USERNAME=user
-DB_PASSWORD=user_password
+https://drive.google.com/file/d/1qVHCpUHUgvuQRnOUgM1Hk_dNLubW0LOL/view?usp=sharing
 
-php artisan key:generate
-
-
-php artisan migrate
-npm run build
-
-
-
-## Заполнения данных и тестирование
-php artisan migrate --env=testing
-
-php artisan db:seed
-php artisan test
+https://drive.google.com/drive/folders/15mybtmtUMVO68eNsTVvQ_u5Yl56RrnLL?usp=sharing
